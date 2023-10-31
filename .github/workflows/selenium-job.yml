@@ -1,0 +1,44 @@
+name: Run Selenium Job Every 2 Days
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron:  '0 18 */2 * *' # every 2 days at 18:00 UTC
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Install Chrome
+    - name: Set up Chrome
+      uses: browser-actions/setup-chrome@latest
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+      # Need to fetch reqs if needed
+    - name: Installing all necessary packages
+      run: pip install chromedriver-autoinstaller selenium
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install selenium webdrivermanager
+
+    - name: Run the script
+      env:
+        MICROSOFT_USERNAME: ${{ secrets.MICROSOFT_USERNAME }}
+        MICROSOFT_PASSWORD: ${{ secrets.MICROSOFT_PASSWORD }}
+        TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        REMOVE_BG_API_KEY: ${{ secrets.REMOVE_BG_API_KEY }}
+        CHROME_BINARY_PATH: $CHROME_BINARY_PATH
+      run: python main.py
