@@ -1,3 +1,7 @@
-removebg==0.4
 selenium
 python-telegram-bot==20.6
+beautifulsoup4==4.12.2
+prettytable==3.9.0
+svgwrite==1.4.3
+cairocffi==1.6.1
+CairoSVG==2.7.1
