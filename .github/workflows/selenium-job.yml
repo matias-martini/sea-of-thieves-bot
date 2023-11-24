@@ -31,7 +31,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libcairo2-dev
+        sudo apt-get install -y libcairo2-dev libcairo2
         pip install -r requirements.txt
         pip install selenium webdrivermanager
 
