@@ -5,3 +5,4 @@ prettytable==3.9.0
 svgwrite==1.4.3
 cairocffi==1.6.1
 CairoSVG==2.7.1
+imgkit==1.2.3
