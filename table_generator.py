@@ -1,6 +1,6 @@
-# import svgwrite
-# import cairosvg
-# import imgkit
+import svgwrite
+import cairosvg
+import imgkit
 import os
 
 def create_svg_table(all_stats, filename='table.png'):

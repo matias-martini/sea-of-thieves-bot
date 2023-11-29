@@ -9,9 +9,6 @@ import chromedriver_autoinstaller
 from telegram import Bot
 import os
 from get_player_stats import get_lowest_score_by_tier, get_player_stats, get_friend_scores
-from prettytable import PrettyTable
-from table_generator import create_svg_table
-
 
 chromedriver_autoinstaller.install()
 
@@ -78,6 +75,8 @@ async def send_player_scores(driver, chat_id, token):
     merchant_stats = get_player_stats_for_ledger(driver, "MerchantAlliance")
     reaper_stats = get_player_stats_for_ledger(driver, "ReapersBones")
 
+    from table_generator import create_svg_table
+
     # Combine all the stats
     all_stats = {
         "Gold Hoarders": goal_hoarders_stats,
@@ -87,19 +86,6 @@ async def send_player_scores(driver, chat_id, token):
         "Reaper's Bones": reaper_stats
     }
 
-    # Creating the table
-    # table = PrettyTable()
-    # table.field_names = ["Guild Name", "Character Name", "Current Tier", "Score [Current/Next]"]
-
-    # # Populating the table
-    # for guild_name, stats in all_stats.items():
-    #     for character_name, character_stats in stats.items():
-    #         current_score = character_stats['current_score']
-    #         next_score = character_stats['next_score']
-    #         player_tier = character_stats['player_tier']
-    #         score_str = f"{current_score:.1f} / {next_score:.1f}"
-
-    #         table.add_row([guild_name, character_name, player_tier, score_str])
     create_svg_table(all_stats, filename='table.png')
 
     bot = Bot(token=token)
