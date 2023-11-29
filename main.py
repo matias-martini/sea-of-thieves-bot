@@ -1,14 +1,14 @@
+import os
 import time
 import asyncio
+from telegram import Bot
+from get_player_stats import get_lowest_score_by_tier, get_player_stats, get_friend_scores
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 import chromedriver_autoinstaller
-from telegram import Bot
-import os
-from get_player_stats import get_lowest_score_by_tier, get_player_stats, get_friend_scores
 
 chromedriver_autoinstaller.install()
 
@@ -75,8 +75,6 @@ async def send_player_scores(driver, chat_id, token):
     merchant_stats = get_player_stats_for_ledger(driver, "MerchantAlliance")
     reaper_stats = get_player_stats_for_ledger(driver, "ReapersBones")
 
-    from table_generator import create_svg_table
-
     # Combine all the stats
     all_stats = {
         "Gold Hoarders": goal_hoarders_stats,
@@ -86,18 +84,13 @@ async def send_player_scores(driver, chat_id, token):
         "Reaper's Bones": reaper_stats
     }
 
-    create_svg_table(all_stats, filename='table.png')
+    from table_generator import create_svg_table
+
+    create_svg_table(all_stats, driver, filename='table.png')
 
     bot = Bot(token=token)
     with open("table.png", 'rb') as image_file:
         await bot.send_photo(chat_id=chat_id, photo=image_file)
-
-    # await bot.send_message(
-    #         chat_id=chat_id,
-    #         text=f"<pre>{table}</pre>",
-    #         parse_mode='HTML'
-    #     )
-
 
 async def send_image_to_telegram_group(image_path, chat_id, token):
     bot = Bot(token=token)
@@ -113,5 +106,6 @@ if __name__ == "__main__":
             print(f"Attempt {i+1} failed. Error: {str(e)}")
             if i == 2:
                 print("All attempts failed.")
+                raise e
     asyncio.run(send_player_scores(driver, int(telegram_chat_id), telegram_token))
     asyncio.run(send_image_to_telegram_group('div_screenshot.png', int(telegram_chat_id), telegram_token))

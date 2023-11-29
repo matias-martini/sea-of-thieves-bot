@@ -1,9 +1,37 @@
-import svgwrite
-import cairosvg
-import imgkit
+from PIL import Image
 import os
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-def create_svg_table(all_stats, filename='table.png'):
+
+def fullpage_screenshot(driver, filename):
+    # Assuming you have already initialized the WebDriver as 'driver'
+    # and navigated to the page containing the table
+    driver.implicitly_wait(10)  # Wait for 10 seconds
+
+    # Use the WebDriverWait to ensure the element is present
+    wait = WebDriverWait(driver, 10)
+    wait.until(EC.presence_of_element_located((By.ID, 'tablaMaestra')))
+
+    # Get the dimensions of the div
+    div_width = driver.execute_script("return document.getElementById('tablaMaestra').offsetWidth")
+    div_height = driver.execute_script("return document.getElementById('tablaMaestra').offsetHeight")
+
+    # Add some extra space to ensure the entire div is captured
+    extra_space = 100
+    new_width = div_width + extra_space
+    new_height = div_height + extra_space
+
+    # Resize the browser window
+    driver.set_window_size(new_width, new_height)
+
+    div = driver.find_element(By.ID, "tablaMaestra")
+    div.screenshot(filename)  # saves the screenshot in the current directory
+
+
+def create_svg_table(all_stats, driver, filename='table.png'):
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
     html_start = """
@@ -48,9 +76,8 @@ def create_svg_table(all_stats, filename='table.png'):
     </head>
     <body>
         <section class="intro">
-        <div class="bg-image h-100" style="background-image: url('https://mdbootstrap.com/img/Photos/new-templates/tables/img4.jpg');">
             <div class="mask d-flex align-items-center h-100" style="background-color: rgba(25, 185, 234,.25);">
-            <div class="container">
+            <div id="tablaMaestra" class="container">
                 <div class="row justify-content-center">
                 <div class="col-12">
                     <div class="card">
@@ -78,7 +105,6 @@ def create_svg_table(all_stats, filename='table.png'):
             </div>
         </div>
         </div>
-    </div>
     </section>
     </body>
     </html>
@@ -137,7 +163,18 @@ def create_svg_table(all_stats, filename='table.png'):
     # Combina todo para formar el HTML completo
     html_table = html_start + generate_table_rows(all_stats) + html_end
 
-    options = {
-        'enable-local-file-access': ''
-    }
-    imgkit.from_string(html_table, filename, options=options)
+    # Save the HTML to a temporary file
+    temp_html_path = os.path.join(current_dir, 'temp_table.html')
+    with open(temp_html_path, 'w') as file:
+        file.write(html_table)
+
+    # Assuming you have already initialized a driver elsewhere
+    # For example: driver = webdriver.Chrome(options=your_options)
+    # Load the temporary HTML file
+    driver.get('file://' + temp_html_path)
+
+    # Take a full page screenshot
+    fullpage_screenshot(driver, filename)
+
+    # Optionally, remove the temporary file if not needed anymore
+    os.remove(temp_html_path)
