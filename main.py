@@ -26,6 +26,7 @@ driver = webdriver.Chrome(options=options)
 driver.get("https://www.seaofthieves.com/login")
 
 
+
 def login_to_microsoft(driver, username, password):
     WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.NAME, "loginfmt")))
     username_field = driver.find_element(By.NAME, "loginfmt")
